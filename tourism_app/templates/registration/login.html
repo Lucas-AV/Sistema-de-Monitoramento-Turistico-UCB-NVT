@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Monitoramento Turístico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos base (modo claro) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            color: #212121;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-container h2 {
+            color: #000000; /* Título h2 mais escuro no modo claro */
+        }
+        .form-group label {
+            font-weight: 500;
+            color: #424242;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            background-color: #2a6f8f;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .form-group button:hover {
+            background-color: #1e5a7a;
+        }
+        .errorlist li {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .helptext {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        /* Estilos do modo escuro */
+        html.dark body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        html.dark .login-container {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        html.dark .login-container h2 {
+            color: #e2e8f0;
+        }
+        html.dark .form-group label {
+            color: #cbd5e0;
+        }
+        html.dark .form-group input[type="text"],
+        html.dark .form-group input[type="password"] {
+            background-color: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+        html.dark .form-group button {
+            background-color: #2c5282;
+            color: #e2e8f0;
+        }
+        html.dark .form-group button:hover {
+            background-color: #1e5a7a;
+        }
+        html.dark .text-gray-600 {
+            color: #cbd5e0;
+        }
+        html.dark .text-blue-500 {
+            color: #63b3ed;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2 class="text-3xl font-bold text-center text-gray-800">Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group mb-4">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="helptext text-sm text-gray-600 mt-1">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="errorlist text-red-500 text-sm">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+                <div class="errorlist text-red-500 text-sm mb-4">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-group mt-6">
+                <button type="submit" class="w-full">Entrar</button>
+            </div>
+        </form>
+        <p class="text-center text-gray-600 mt-4">Não tem uma conta? <a href="{% url 'register' %}" class="text-blue-500 hover:underline">Registre-se aqui</a>.</p>
+    </div>
+
+    <script>
+        // Função para aplicar o tema salvo no localStorage na carga da página
+        function applySavedThemeToAuthPages() {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+        }
+        document.addEventListener('DOMContentLoaded', applySavedThemeToAuthPages);
+    </script>
+</body>
+</html>
+
+

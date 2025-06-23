@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Notificações - Monitoramento Turístico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos base (modo claro) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            color: #212121;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .header {
+            background-color: #2a6f8f;
+            color: #fff;
+            padding: 1.5rem;
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* Títulos principais no cabeçalho: sempre brancos */
+        .header h1, .header p {
+            color: #ffffff; /* Fixo branco */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        th {
+            background-color: #e2e8f0;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        /* Estilos para as notificações na lista (sem botão de fechar, apenas visualização) */
+        .notification-item {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        .notification-item .icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .notification-item .content {
+            flex-grow: 1;
+        }
+        .notification-item .date {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-left: 1rem;
+            flex-shrink: 0;
+        }
+        /* Cores das notificações (modo claro) */
+        .notification-item.info {
+            background-color: #e0f2f7;
+            color: #0c4a6e;
+            border: 1px solid #7dd3fc;
+        }
+        .notification-item.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+        .notification-item.warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+        .notification-item.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        /* Estilos para estado dispensado */
+        .notification-item.dismissed {
+            opacity: 0.6;
+            background-color: #e2e8f0;
+            color: #718096;
+            border-color: #a0aec0;
+        }
+        html.dark .notification-item.dismissed {
+            background-color: #4a5568;
+            color: #cbd5e0;
+            border-color: #718096;
+        }
+
+
+        /* Estilos do modo escuro */
+        html.dark body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        html.dark .card {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        html.dark .header {
+            background-color: #2c5282;
+            color: #fff;
+        }
+        /* Títulos principais no cabeçalho no modo escuro: também brancos */
+        html.dark .header h1, html.dark .header p {
+            color: #fff;
+        }
+        html.dark th {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+        html.dark td {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        html.dark tr:nth-child(even) {
+            background-color: #3b455b;
+        }
+        html.dark .notification-item.info {
+            background-color: #1a4d6f;
+            color: #bae6fd;
+            border-color: #0ea5e9;
+        }
+        html.dark .notification-item.success {
+            background-color: #105c41;
+            color: #a7f3d0;
+            border-color: #10b981;
+        }
+        html.dark .notification-item.warning {
+            background-color: #8a4e0a;
+            color: #fcd34d;
+            border-color: #f59e0b;
+        }
+        html.dark .notification-item.error {
+            background-color: #7f1d1d;
+            color: #fca5a5;
+            border-color: #ef4444;
+        }
+        html.dark .notification-item .date {
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+    <header class="header text-center">
+        <h1 class="text-3xl font-bold">Sistema de Monitoramento Turístico</h1>
+        <p class="mt-2 text-lg">Histórico de Notificações</p>
+        <nav class="mt-4 flex justify-center items-center space-x-6 text-lg">
+            <ul class="flex space-x-6">
+                <li><a href="{% url 'dashboard' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Dashboard</a></li>
+                <li><a href="{% url 'reports' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Relatórios</a></li>
+                <li><a href="{% url 'notifications_history' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Notificações</a></li>
+                {% if user.is_authenticated %}
+                    <li><span class="text-white">Olá, {{ user.username }}!</span></li>
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="text-white hover:text-gray-300 transition duration-300 font-semibold bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Login</a></li>
+                    <li><a href="{% url 'register' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Registro</a></li>
+                {% endif %}
+            </ul>
+            <!-- Botão de alternância de modo escuro -->
+            <button id="darkModeToggle" class="ml-6 px-3 py-1 rounded-full text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+                Modo Escuro
+            </button>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="card p-6">
+            <h2 class="text-2xl font-semibold">Todas as Notificações</h2>
+            {% if notifications %}
+                <div class="space-y-4">
+                    {% for notification in notifications %}
+                        <div class="notification-item {{ notification.type }} {% if notification.is_dismissed %}dismissed{% endif %}">
+                            <div class="icon">
+                                {% if notification.type == 'success' %}
+                                    <span>✅</span>
+                                {% elif notification.type == 'warning' %}
+                                    <span>⚠️</span>
+                                {% elif notification.type == 'error' %}
+                                    <span>❌</span>
+                                {% else %}
+                                    <span>ℹ️</span>
+                                {% endif %}
+                            </div>
+                            <div class="content">
+                                <p>{{ notification.message }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Criada em: {{ notification.created_at|date:"d/m/Y H:i:s" }}</p>
+                                {% if notification.is_dismissed %}
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Status: Dispensada</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-600 dark:text-gray-400 text-center">Nenhuma notificação encontrada.</p>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+        <p>&copy; 2025 Sistema de Monitoramento Turístico.  Grupo 8 - Universidade Católica de Brasília</p>
+    </footer>
+
+    <script>
+        // Funções de toggle de modo escuro (mantidas para consistência)
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('darkModeToggle').textContent = 'Modo Escuro';
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('darkModeToggle').textContent = 'Modo Claro';
+            }
+        }
+
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+                document.getElementById('darkModeToggle').textContent = 'Modo Claro';
+            } else {
+                html.classList.remove('dark');
+                document.getElementById('darkModeToggle').textContent = 'Modo Escuro';
+            }
+        }
+
+        // Adiciona evento ao botão de alternância
+        document.addEventListener('DOMContentLoaded', () => {
+            applySavedTheme();
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', toggleDarkMode);
+            }
+        });
+
+    </script>
+</body>
+</html>

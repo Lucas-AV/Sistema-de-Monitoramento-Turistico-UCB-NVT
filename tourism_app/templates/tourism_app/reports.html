@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios de Visitação - Monitoramento Turístico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos base (modo claro) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            color: #212121;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .header {
+            background-color: #2a6f8f;
+            padding: 1.5rem;
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* Títulos principais no cabeçalho: sempre brancos */
+        .header h1, .header p {
+            color: #ffffff; /* Fixo branco */
+        }
+        .form-group label {
+            font-weight: 500;
+            color: #424242;
+            margin-bottom: 0.5rem;
+        }
+        .form-group input[type="date"],
+        .form-group select {
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            color: #212121;
+        }
+        th {
+            background-color: #e2e8f0;
+            font-weight: 600;
+        }
+        td {
+            background-color: #ffffff;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        /* Títulos de seção e card (modo claro) */
+        h2 {
+            color: #212121;
+        }
+        /* Outros elementos de texto em cards que podem precisar de ajuste */
+        .card p {
+            color: #212121;
+        }
+
+
+        /* Estilos do modo escuro */
+        html.dark body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        html.dark .card {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        html.dark .header {
+            background-color: #2c5282;
+            color: #fff;
+        }
+        /* Títulos principais no cabeçalho no modo escuro: também brancos */
+        html.dark .header h1, html.dark .header p {
+            color: #fff;
+        }
+        html.dark .form-group label {
+            color: #cbd5e0;
+        }
+        html.dark .form-group input[type="date"],
+        html.dark .form-group select {
+            background-color: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+        html.dark th {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+        html.dark td {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        html.dark tr:nth-child(even) {
+            background-color: #3b455b;
+        }
+        /* Títulos h2 no modo escuro na tela de relatórios: brancos */
+        html.dark h2 {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header class="header text-center">
+        <h1 class="text-3xl font-bold">Sistema de Monitoramento Turístico</h1>
+        <p class="mt-2 text-lg">Relatórios de Visitação</p>
+        <nav class="mt-4 flex justify-center items-center space-x-6 text-lg">
+            <ul class="flex space-x-6">
+                <li><a href="{% url 'dashboard' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Dashboard</a></li>
+                <li><a href="{% url 'reports' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Relatórios</a></li>
+                <li><a href="{% url 'notifications_history' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Notificações</a></li>
+                {% if user.is_authenticated %}
+                    <li><span class="text-white">Olá, {{ user.username }}!</span></li>
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="text-white hover:text-gray-300 transition duration-300 font-semibold bg-transparent border-none p-0 cursor-pointer">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Login</a></li>
+                    <li><a href="{% url 'register' %}" class="text-white hover:text-gray-300 transition duration-300 font-semibold">Registro</a></li>
+                {% endif %}
+            </ul>
+            <!-- Botão de alternância de modo escuro -->
+            <button id="darkModeToggle" class="ml-6 px-3 py-1 rounded-full text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+                Modo Escuro
+            </button>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="card mb-8 p-6">
+            <h2 class="text-2xl font-semibold">Filtros de Relatório</h2>
+            <form method="GET" action="{% url 'reports' %}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="form-group">
+                    <label for="ponto_turistico" class="block text-sm">Ponto Turístico:</label>
+                    <select id="ponto_turistico" name="ponto_turistico" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Todos</option>
+                        {% for ponto in pontos_turisticos %}
+                            <option value="{{ ponto.id }}" {% if ponto.id|stringformat:"s" == current_ponto_turistico %}selected{% endif %}>{{ ponto.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tipo_turista" class="block text-sm">Tipo de Turista:</label>
+                    <select id="tipo_turista" name="tipo_turista" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Todos</option>
+                        {% for choice_value, choice_label in tipos_turista %}
+                            <option value="{{ choice_value }}" {% if choice_value == current_tipo_turista %}selected{% endif %}>{{ choice_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="start_date" class="block text-sm">Data de Início:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ current_start_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                </div>
+                <div class="form-group">
+                    <label for="end_date" class="block text-sm">Data de Fim:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ current_end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                </div>
+                <div class="form-group md:col-span-4 flex justify-between items-center">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                        Aplicar Filtros
+                    </button>
+                    <a href="{% url 'export_visits_csv' %}?ponto_turistico={{ current_ponto_turistico }}&tipo_turista={{ current_tipo_turista }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                        Exportar para CSV
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="card p-6">
+            <h2 class="text-2xl font-semibold text-black dark:text-white">Resultados do Relatório</h2>
+            {% if visits %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th>Ponto Turístico</th>
+                                <th>Localização</th>
+                                <th>Tipo Ponto</th>
+                                <th>Nome Turista</th>
+                                <th>Origem Turista</th>
+                                <th>Tipo Turista</th>
+                                <th>Horário da Visita</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visit in visits %}
+                                <tr>
+                                    <td>{{ visit.ponto_visitado.nome }}</td>
+                                    <td>{{ visit.ponto_visitado.localizacao }}</td>
+                                    <td>{{ visit.ponto_visitado.tipo }}</td>
+                                    <td>{{ visit.turista.nome|default:"N/A" }}</td>
+                                    <td>{{ visit.turista.pais_estado_origem }}</td>
+                                    <td>{{ visit.turista.tipo }}</td>
+                                    <td>{{ visit.horario|date:"d/m/Y H:i:s" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-gray-600 dark:text-gray-400 text-center">Nenhuma visita encontrada para os filtros selecionados.</p>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+        <p>&copy; 2025 Sistema de Monitoramento Turístico.  Grupo 8 - Universidade Católica de Brasília</p>
+    </footer>
+
+    <script>
+        // Função para alternar o modo escuro
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('darkModeToggle').textContent = 'Modo Escuro';
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('darkModeToggle').textContent = 'Modo Claro';
+            }
+        }
+
+        // Aplica o tema salvo no localStorage na carga da página
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+                document.getElementById('darkModeToggle').textContent = 'Modo Claro';
+            } else {
+                html.classList.remove('dark');
+                document.getElementById('darkModeToggle').textContent = 'Modo Escuro';
+            }
+        }
+
+        // Adiciona evento ao botão de alternância
+        document.addEventListener('DOMContentLoaded', () => {
+            applySavedTheme(); // Aplica o tema salvo antes de tudo
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', toggleDarkMode);
+            }
+        });
+
+    </script>
+</body>
+</html>
